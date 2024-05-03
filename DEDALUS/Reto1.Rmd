@@ -30,6 +30,17 @@ summary(LOD)
 
 JUAN
 
+Creo que los valores que debemos estudiar serían: surgey:length_of_duration + cleaning_time + recovery_time o quizá
+simplemente el length_of_duration. Ojo: Tener en cuenta que hay valores negativos por alguna razón en estas variables.
+Quizá las variables gender y height sean las menos relevantes. También creo que las variables main_procedure y
+main_condition estan fuertemente ligadas así que quizá podriamos eliminar una de ellas. Otras variables como
+Comorbidity, character_of_intervention, weight y main_condition me parecen más relevantes para el estudio de la 
+duración de la cirugía. Mi idea para dar solución a este problema sería usar R para el análisis y limpieza de los
+datos. Una vez hecho esto considero que sería buena idea realizar una red bayesiana poniendo valores como intervalos
+para las variables numéricas. No sé si en R se podría crear un algoritmo de decisión que decidiese el tiempo de
+duración de la cirugía según los datos proporcionados. También podríamos intentar hacer una red neuronal pero lo veo
+más complicado.
+
 
 DELBU
 
@@ -47,9 +58,26 @@ colnames(LOD)
 
 
 ```{r}
+unique(LOD$main_procedure)
+unique(LOD$main_condition)
+unique(LOD$secondary_procedure)
+unique(LOD$character_of_intervention)
+unique(LOD$health_service)
+unique(LOD$asa_score)
 unique(LOD$gender)
-
 unique(LOD$age)
+unique(LOD$weight)
+unique(LOD$height)
+unique(LOD$comorbidity)
+unique(LOD$anesthesia_local)
+unique(LOD$anesthesia_sedation)
+unique(LOD$anesthesia_plexus_block)
+unique(LOD$anesthesia_intradural)
+unique(LOD$anesthesia_epidural)
+unique(LOD$anesthesia_general)
+unique(LOD$surgery_length_of_duration)
+unique(LOD$cleaning_time)
+unique(LOD$recovery_time)
 
 ```
 
