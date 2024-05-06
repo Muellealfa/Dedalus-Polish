@@ -1,0 +1,325 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+unique(LOD$asa_score)
+```
+## *Análisis exploratorio de datos*
+
+En este apartado haremos un estudio exhaustivo del dataset fijandonos detenidamente en todas sus variables y valores.
+
+```{r}
+variables <- colnames(LOD)
+variables
+```
+
+Nuestro dataset consta de varias columns como podemos ver anteriormente,a continuación haremos una breve explicación del significado de cada una de ellas y actualizaremos el dataset quedandonos solo con las que consideramos más relevantes.
+
+-Lo que puso Roo que no me pasó UWU
+
+Otro factor a tener en cuenta antes de meternos en profundidad es ver si hay valores NA
+
+```{r}
+ifelse(sum(is.na(LOD)) == 0,"No hay valores NA","El dataset contiene valores NA")
+```
+Vamos a ver cuantos NA hay en cada columna
+
+```{r}
+install.packages("dplyr")
+library(dplyr)
+LOD %>%
+  summarise_all(.funs = function(x) sum(is.na(x)))
+
+```
+
+Descripcion y valores que alcanzan
+
+La mayoría de filas de las columas del dataset ocupan valores binarios(0 para indicar que la condición es falsa y 1 para indicar que la condición es verdadera).
+
+Las columnas que no tienen esa estructura son:
+
+Para centralizar un poco más nuestro estudio vamos a ver la duración de la cirugía y como hemos mencionado anteriormente seleccionar las columnas que consideramos más relaventes.
+
+Creamos un dataset llamado "falsas" donde guardamos todas lascuentas falsas para analizar posteriormente sus características,además centraremos el estudio en él.
+
+```{r}
+asa1 <- LOD %>% filter (asa_score == 1) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`))
+asa2 <- LOD %>% filter (asa_score == 2) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`))
+asa3 <- LOD %>% filter (asa_score == 3) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`))
+asa4 <- LOD %>% filter (asa_score == 4) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`))
+asa5 <- LOD %>% filter (asa_score == 5) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`))
+```
+
+```{r}
+(nrow(asa1)/nrow(LOD))*100
+(nrow(asa2)/nrow(LOD))*100
+(nrow(asa3)/nrow(LOD))*100
+(nrow(asa4)/nrow(LOD))*100
+(nrow(asa5)/nrow(LOD))*100
+```
+```{r}
+summary(LOD$comorbidity)
+```
+```{r}
+unique(LOD$comorbidity)
+```
+
+Antes hemos observado que hay cuentas donde no se indica el nombre así vamos a ver el porcentaje sobre el dataset para ver si es un valor importante.
+
+```{r}
+(nrow(asa1 %>% filter(`comorbidity` == "lung_disease"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "cancer"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "heart_disease"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "hypertension"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "kidney_disease"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "obesity"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "cancer"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "nan"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "diabetes"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "drug_abuse"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "liver_disease"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "alcoholism"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "hiv"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`comorbidity` == "smoker"))/nrow(asa1))*100
+```
+```{r}
+(nrow(asa2 %>% filter(`comorbidity` == "lung_disease"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "cancer"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "heart_disease"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "hypertension"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "kidney_disease"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "obesity"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "cancer"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "nan"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "diabetes"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "drug_abuse"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "liver_disease"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "alcoholism"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "hiv"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`comorbidity` == "smoker"))/nrow(asa2))*100
+```
+```{r}
+(nrow(asa3 %>% filter(`comorbidity` == "lung_disease"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "cancer"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "heart_disease"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "hypertension"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "kidney_disease"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "obesity"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "cancer"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "nan"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "diabetes"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "drug_abuse"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "liver_disease"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "alcoholism"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "hiv"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`comorbidity` == "smoker"))/nrow(asa3))*100
+```
+```{r}
+(nrow(asa4 %>% filter(`comorbidity` == "lung_disease"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "cancer"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "heart_disease"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "hypertension"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "kidney_disease"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "obesity"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "cancer"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "nan"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "diabetes"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "drug_abuse"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "liver_disease"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "alcoholism"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "hiv"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`comorbidity` == "smoker"))/nrow(asa4))*100
+```
+```{r}
+(nrow(asa5 %>% filter(`comorbidity` == "lung_disease"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "cancer"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "heart_disease"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "hypertension"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "kidney_disease"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "obesity"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "cancer"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "nan"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "diabetes"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "drug_abuse"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "liver_disease"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "alcoholism"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "hiv"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`comorbidity` == "smoker"))/nrow(asa5))*100
+```
+
+No hemos sacado datos muy concluyentes. Lo único que podemos decir es que el mayor porcentaje de asa score 5 proviene de pacientes con kidney_disease, seguido de lung_disease y nan
+
+```{r}
+summary(asa1$`gender`)
+```
+
+```{r}
+unique(asa1$`gender`)
+```
+
+Comparamos con los pacientes con diferentes asa_scores
+
+```{r}
+(nrow(asa1 %>% filter(`gender` == "male"))/nrow(asa1))*100
+(nrow(asa1 %>% filter(`gender` == "female"))/nrow(asa1))*100
+```
+```{r}
+(nrow(asa2 %>% filter(`gender` == "male"))/nrow(asa2))*100
+(nrow(asa2 %>% filter(`gender` == "female"))/nrow(asa2))*100
+```
+```{r}
+(nrow(asa3 %>% filter(`gender` == "male"))/nrow(asa3))*100
+(nrow(asa3 %>% filter(`gender` == "female"))/nrow(asa3))*100
+```
+```{r}
+(nrow(asa4 %>% filter(`gender` == "male"))/nrow(asa4))*100
+(nrow(asa4 %>% filter(`gender` == "female"))/nrow(asa4))*100
+```
+```{r}
+(nrow(asa5 %>% filter(`gender` == "male"))/nrow(asa5))*100
+(nrow(asa5 %>% filter(`gender` == "female"))/nrow(asa5))*100
+```
+
+Vemos que los hombres predisponen a tener un peor asa_score
+
+```{r}
+(nrow(asa1 %>% filter(`age` >= 0 & age <= 5))/nrow(asa1))*100  #bebés
+(nrow(asa1 %>% filter(`age` > 5 & age <= 12))/nrow(asa1))*100  #niños
+(nrow(asa1 %>% filter(`age` > 12 & age <= 18))/nrow(asa1))*100 #adolescentes
+(nrow(asa1 %>% filter(`age` > 18 & age <= 30))/nrow(asa1))*100 #adolescentes adultos
+(nrow(asa1 %>% filter(`age` > 30 & age <= 50))/nrow(asa1))*100 #adultos
+(nrow(asa1 %>% filter(`age` > 50))/nrow(asa1))*100             #mayores
+```
+```{r}
+(nrow(asa2 %>% filter(`age` >= 0 & age <= 5))/nrow(asa2))*100  #bebés
+(nrow(asa2 %>% filter(`age` > 5 & age <= 12))/nrow(asa2))*100  #niños
+(nrow(asa2 %>% filter(`age` > 12 & age <= 18))/nrow(asa2))*100 #adolescentes
+(nrow(asa2 %>% filter(`age` > 18 & age <= 30))/nrow(asa2))*100 #adolescentes adultos
+(nrow(asa2 %>% filter(`age` > 30 & age <= 50))/nrow(asa2))*100 #adultos
+(nrow(asa2 %>% filter(`age` > 50))/nrow(asa2))*100             #mayores
+```
+```{r}
+(nrow(asa3 %>% filter(`age` >= 0 & age <= 5))/nrow(asa3))*100  #bebés
+(nrow(asa3 %>% filter(`age` > 5 & age <= 12))/nrow(asa3))*100  #niños
+(nrow(asa3 %>% filter(`age` > 12 & age <= 18))/nrow(asa3))*100 #adolescentes
+(nrow(asa3 %>% filter(`age` > 18 & age <= 30))/nrow(asa3))*100 #adolescentes adultos
+(nrow(asa3 %>% filter(`age` > 30 & age <= 50))/nrow(asa3))*100 #adultos
+(nrow(asa3 %>% filter(`age` > 50))/nrow(asa3))*100             #mayores
+```
+```{r}
+(nrow(asa4 %>% filter(`age` >= 0 & age <= 5))/nrow(asa4))*100  #bebés
+(nrow(asa4 %>% filter(`age` > 5 & age <= 12))/nrow(asa4))*100  #niños
+(nrow(asa4 %>% filter(`age` > 12 & age <= 18))/nrow(asa4))*100 #adolescentes
+(nrow(asa4 %>% filter(`age` > 18 & age <= 30))/nrow(asa4))*100 #adolescentes adultos
+(nrow(asa4 %>% filter(`age` > 30 & age <= 50))/nrow(asa4))*100 #adultos
+(nrow(asa4 %>% filter(`age` > 50))/nrow(asa4))*100             #mayores
+```
+```{r}
+(nrow(asa5 %>% filter(`age` >= 0 & age <= 5))/nrow(asa5))*100  #bebés
+(nrow(asa5 %>% filter(`age` > 5 & age <= 12))/nrow(asa5))*100  #niños
+(nrow(asa5 %>% filter(`age` > 12 & age <= 18))/nrow(asa5))*100 #adolescentes
+(nrow(asa5 %>% filter(`age` > 18 & age <= 30))/nrow(asa5))*100 #adolescentes adultos
+(nrow(asa5 %>% filter(`age` > 30 & age <= 50))/nrow(asa5))*100 #adultos
+(nrow(asa5 %>% filter(`age` > 50))/nrow(asa5))*100             #mayores
+```
+El mayo porcentaje de pacientes con asa mayor que 1 son personas mayores. Con mas de 50 años de edad
+
+Bajo peso: IMC menor a 18.5
+Peso saludable: IMC entre 18.5 y 24.9
+Sobrepeso: IMC entre 25 y 29.9
+Obesidad: IMC de 30 o más
+
+```{r}
+asa1 <- asa1 %>%
+  mutate(IMC = weight/((height/100)^2))
+
+asa2 <- asa2 %>%
+  mutate(IMC = weight/((height/100)^2))
+
+asa3 <- asa3 %>%
+  mutate(IMC = weight/((height/100)^2))
+
+asa4 <- asa4 %>%
+  mutate(IMC = weight/((height/100)^2))
+
+asa5 <- asa5 %>%
+  mutate(IMC = weight/((height/100)^2))
+LOD <- LOD %>%
+  mutate(IMC = weight/((height/100)^2))
+```
+
+```{r}
+(nrow(asa1 %>% filter(IMC < 18.5))/nrow(asa1))*100  #Bajo peso
+(nrow(asa1 %>% filter(IMC >= 18.5 & IMC < 25))/nrow(asa1))*100  #Peso saludable
+(nrow(asa1 %>% filter(IMC >= 25 & IMC < 30))/nrow(asa1))*100 #Sobrepeso 
+(nrow(asa1 %>% filter(IMC >= 30))/nrow(asa1))*100 #Obesidad 
+```
+```{r}
+(nrow(asa2 %>% filter(IMC < 18.5))/nrow(asa2))*100  #Bajo peso
+(nrow(asa2 %>% filter(IMC >= 18.5 & IMC < 25))/nrow(asa2))*100  #Peso saludable
+(nrow(asa2 %>% filter(IMC >= 25 & IMC < 30))/nrow(asa2))*100 #Sobrepeso 
+(nrow(asa2 %>% filter(IMC >= 30))/nrow(asa2))*100 #Obesidad 
+```
+```{r}
+(nrow(asa3 %>% filter(IMC < 18.5))/nrow(asa3))*100  #Bajo peso
+(nrow(asa3 %>% filter(IMC >= 18.5 & IMC < 25))/nrow(asa3))*100  #Peso saludable
+(nrow(asa3 %>% filter(IMC >= 25 & IMC < 30))/nrow(asa3))*100 #Sobrepeso 
+(nrow(asa3 %>% filter(IMC >= 30))/nrow(asa3))*100 #Obesidad 
+```
+```{r}
+(nrow(asa4 %>% filter(IMC < 18.5))/nrow(asa4))*100  #Bajo peso
+(nrow(asa4 %>% filter(IMC >= 18.5 & IMC < 25))/nrow(asa4))*100  #Peso saludable
+(nrow(asa4 %>% filter(IMC >= 25 & IMC < 30))/nrow(asa4))*100 #Sobrepeso 
+(nrow(asa4 %>% filter(IMC >= 30))/nrow(asa4))*100 #Obesidad 
+```
+```{r}
+(nrow(asa5 %>% filter(IMC < 18.5))/nrow(asa5))*100  #Bajo peso
+(nrow(asa5 %>% filter(IMC >= 18.5 & IMC < 25))/nrow(asa5))*100  #Peso saludable
+(nrow(asa5 %>% filter(IMC >= 25 & IMC < 30))/nrow(asa5))*100 #Sobrepeso 
+(nrow(asa5 %>% filter(IMC >= 30))/nrow(asa5))*100 #Obesidad 
+```
+```{r}
+(nrow(LOD %>% filter(IMC < 18.5))/nrow(LOD))*100  #Bajo peso
+(nrow(LOD %>% filter(IMC >= 18.5 & IMC < 25))/nrow(LOD))*100  #Peso saludable
+(nrow(LOD %>% filter(IMC >= 25 & IMC < 30))/nrow(LOD))*100 #Sobrepeso 
+(nrow(LOD %>% filter(IMC >= 30))/nrow(LOD))*100 #Obesidad 
+```
+No podemos sacar datos concluyentes en los asa pero sí podemos decir que la mayoría de pacientes del dataset son personas con obesidad.
+
+```{r}
+(nrow(LOD %>% filter(surgery_length_of_duration < 0))/nrow(LOD))*100   
+(nrow(LOD %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(LOD))*100   
+(nrow(LOD %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(LOD))*100  
+(nrow(LOD %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(LOD))*100   
+(nrow(LOD %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(LOD))*100   
+(nrow(LOD %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(LOD))*100   
+(nrow(LOD %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(LOD))*100 
+(nrow(LOD %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(LOD))*100 
+(nrow(LOD %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(LOD))*100 
+(nrow(LOD %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(LOD))*100 
+(nrow(LOD %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(LOD))*100 
+(nrow(LOD %>% filter(surgery_length_of_duration >= 600))/nrow(LOD))*100   
+
+```
+```{r}
+negativo <- LOD %>% filter (surgery_length_of_duration < 0)
+```
+
+```{r}
+
+(nrow(negativo %>% filter(surgery_length_of_duration < 0 & asa_score == 1))/nrow(negativo))*100   
+(nrow(negativo %>% filter(surgery_length_of_duration < 0 & asa_score == 2))/nrow(negativo))*100   
+(nrow(negativo %>% filter(surgery_length_of_duration < 0 & asa_score == 3))/nrow(negativo))*100   
+(nrow(negativo %>% filter(surgery_length_of_duration < 0 & asa_score == 4))/nrow(negativo))*100   
+(nrow(negativo %>% filter(surgery_length_of_duration < 0 & asa_score == 5))/nrow(negativo))*100   
+
+```
+los mayores tiempos negativos provienen del asa 2
