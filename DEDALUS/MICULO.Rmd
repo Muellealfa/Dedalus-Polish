@@ -9,6 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+
 ```{r}
 unique(LOD$asa_score)
 ```
@@ -22,8 +23,6 @@ variables
 ```
 
 Nuestro dataset consta de varias columns como podemos ver anteriormente,a continuación haremos una breve explicación del significado de cada una de ellas y actualizaremos el dataset quedandonos solo con las que consideramos más relevantes.
-
--Lo que puso Roo que no me pasó UWU
 
 Otro factor a tener en cuenta antes de meternos en profundidad es ver si hay valores NA
 
@@ -43,15 +42,7 @@ LOD %>%
 LOD <- na.omit(LOD)
 ```
 
-Descripcion y valores que alcanzan
-
-La mayoría de filas de las columas del dataset ocupan valores binarios(0 para indicar que la condición es falsa y 1 para indicar que la condición es verdadera).
-
-Las columnas que no tienen esa estructura son:
-
-Para centralizar un poco más nuestro estudio vamos a ver la duración de la cirugía y como hemos mencionado anteriormente seleccionar las columnas que consideramos más relaventes.
-
-Creamos un dataset llamado "falsas" donde guardamos todas lascuentas falsas para analizar posteriormente sus características,además centraremos el estudio en él.
+Vamos a crear una tabla para cada asa_score y ver qué porcentaje de cada uno hay en nuestro dataset
 
 ```{r}
 asa1 <- LOD %>% filter (asa_score == 1) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`))
@@ -68,6 +59,11 @@ asa5 <- LOD %>% filter (asa_score == 5) %>% select(c(`age`,`weight`,`height`,`ge
 (nrow(asa4)/nrow(LOD))*100
 (nrow(asa5)/nrow(LOD))*100
 ```
+
+Hay un porcentaje mucho mayor de asa_score = 2, casi un 50% de los datos
+
+Vamos a ver si esto influye en la comorbidity y otros valroes.
+
 ```{r}
 summary(LOD$comorbidity)
 ```
@@ -75,7 +71,6 @@ summary(LOD$comorbidity)
 unique(LOD$comorbidity)
 ```
 
-Antes hemos observado que hay cuentas donde no se indica el nombre así vamos a ver el porcentaje sobre el dataset para ver si es un valor importante.
 
 ```{r}
 (nrow(asa1 %>% filter(`comorbidity` == "lung_disease"))/nrow(asa1))*100
@@ -158,7 +153,9 @@ Antes hemos observado que hay cuentas donde no se indica el nombre así vamos a 
 (nrow(asa5 %>% filter(`comorbidity` == "smoker"))/nrow(asa5))*100
 ```
 
-No hemos sacado datos muy concluyentes. Lo único que podemos decir es que el mayor porcentaje de asa score 5 proviene de pacientes con kidney_disease, seguido de lung_disease y nan
+No hemos sacado datos muy concluyentes. Lo único que podemos decir es que el mayor porcentaje de asa score 5 proviene de pacientes con kidney_disease, seguido de lung_disease y nan. No podemos tener esto muy en cuenta ya que con asa_score = 5 hay menos de 50 casos
+
+Estudiemos qué pasa con el género.
 
 ```{r}
 summary(asa1$`gender`)
@@ -191,7 +188,9 @@ Comparamos con los pacientes con diferentes asa_scores
 (nrow(asa5 %>% filter(`gender` == "female"))/nrow(asa5))*100
 ```
 
-Vemos que los hombres predisponen a tener un peor asa_score
+Vemos que en los asa_scores mayores hay más presencia de hombres que de mujeres.
+
+Vamos ahora a hacer una división por edades:
 
 ```{r}
 (nrow(asa1 %>% filter(`age` >= 0 & age <= 5))/nrow(asa1))*100  #bebés
@@ -234,6 +233,10 @@ Vemos que los hombres predisponen a tener un peor asa_score
 (nrow(asa5 %>% filter(`age` > 50))/nrow(asa5))*100             #mayores
 ```
 El mayo porcentaje de pacientes con asa mayor que 1 son personas mayores. Con mas de 50 años de edad
+
+Tampoco es muy relevante ya que el 60% de los pacientes aproximadamente son mayores
+
+Vamos a crear una columna nueva para el IMC
 
 Bajo peso: IMC menor a 18.5
 Peso saludable: IMC entre 18.5 y 24.9
@@ -312,6 +315,9 @@ No podemos sacar datos concluyentes en los asa pero sí podemos decir que la may
 (nrow(LOD %>% filter(surgery_length_of_duration >= 600))/nrow(LOD))*100   
 
 ```
+
+La mayoría de las cirugías duran entre 2 y 3 horas
+
 ```{r}
 negativo <- LOD %>% filter (surgery_length_of_duration < 0)
 ```
@@ -328,6 +334,8 @@ negativo <- LOD %>% filter (surgery_length_of_duration < 0)
 
 los mayores tiempos negativos provienen del asa 2
 
+Vamos a filtrar los datos según la cantidad de anestesía diferente que se aplica:
+
 ```{r}
 anestesia <- LOD %>% filter  %>% select(c(asa_score, anesthesia_local, anesthesia_sedation, anesthesia_plexus_block, anesthesia_intradural, anesthesia_epidural, anesthesia_general, surgery_length_of_duration, cleaning_time, recovery_time))
 anestesia
@@ -336,7 +344,7 @@ anestesia
 ```{r}
 conjuntas <- LOD %>%
   filter(rowSums(select(., starts_with("anesthesia")) == 1) >= 2) %>%
-  select(asa_score, anesthesia_local, anesthesia_sedation, 
+  select(secondary_procedure, asa_score, anesthesia_local, anesthesia_sedation, 
          anesthesia_plexus_block, anesthesia_intradural, 
          anesthesia_epidural, anesthesia_general, 
          surgery_length_of_duration, cleaning_time, recovery_time)
@@ -346,7 +354,7 @@ conjuntas
 ```{r}
 individuales <- LOD %>%
   filter(rowSums(select(., starts_with("anesthesia")) == 1) == 1) %>%
-  select(asa_score, anesthesia_local, anesthesia_sedation, 
+  select(secondary_procedure, asa_score, anesthesia_local, anesthesia_sedation, 
          anesthesia_plexus_block, anesthesia_intradural, 
          anesthesia_epidural, anesthesia_general, 
          surgery_length_of_duration, cleaning_time, recovery_time)
@@ -393,4 +401,406 @@ media_duration_individuales <- colMeans(individuales[, c("surgery_length_of_dura
 media_duration_individuales
 ```
 
+Las medias son iguales
+
+
+```{r}
+(nrow(LOD %>% filter(`secondary_procedure` == 1))/nrow(LOD))*100
+(nrow(conjuntas %>% filter(`secondary_procedure` == 1))/nrow(conjuntas))*100
+(nrow(individuales %>% filter(`secondary_procedure` == 1))/nrow(individuales))*100
+```
+Se puede apreciar que los casos en los que existe un procedimiento secundario hay una tendencia un poco mayor a que se use más de un tipo de anestesia y menor a que se use solo un tipo.
+
+cuando no hay procedimiento secundario ocurre lo contrario
+
+```{r}
+(nrow(LOD %>% filter(rowSums(select(., starts_with("anesthesia")) == 1) == 0)))
+(nrow(LOD %>% filter(rowSums(select(., starts_with("anesthesia")) == 1) == 0)))/(nrow(LOD))
+```
+
+Existen casos en los que no se aplica anestesia.
+
+```{r}
+sin_anestesia <- LOD %>%
+  filter(rowSums(select(., starts_with("anesthesia")) == 1) == 0) %>%
+  select(comorbidity, secondary_procedure, asa_score, anesthesia_local,
+         anesthesia_sedation, 
+         anesthesia_plexus_block, anesthesia_intradural, 
+         anesthesia_epidural, anesthesia_general, 
+         surgery_length_of_duration, cleaning_time, recovery_time)
+sin_anestesia
+```
+
+```{r}
+(nrow(sin_anestesia %>% filter(asa_score == 1))/nrow(sin_anestesia))*100
+(nrow(sin_anestesia %>% filter(asa_score == 2))/nrow(sin_anestesia))*100
+(nrow(sin_anestesia %>% filter(asa_score == 3))/nrow(sin_anestesia))*100
+(nrow(sin_anestesia %>% filter(asa_score == 4))/nrow(sin_anestesia))*100
+(nrow(sin_anestesia %>% filter(asa_score == 5))/nrow(sin_anestesia))*100
+```
+```{r}
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration < 0))/nrow(sin_anestesia))*100   
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(sin_anestesia))*100   
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(sin_anestesia))*100  
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(sin_anestesia))*100   
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(sin_anestesia))*100   
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(sin_anestesia))*100   
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(sin_anestesia))*100 
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(sin_anestesia))*100 
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(sin_anestesia))*100 
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(sin_anestesia))*100 
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(sin_anestesia))*100 
+(nrow(sin_anestesia %>% filter(surgery_length_of_duration >= 600))/nrow(sin_anestesia))*100   
+
+```
+Muy parecido al caso normal
+
+```{r}
+asa1 <- LOD %>% filter (asa_score == 1) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`, surgery_length_of_duration))
+asa2 <- LOD %>% filter (asa_score == 2) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`,surgery_length_of_duration))
+asa3 <- LOD %>% filter (asa_score == 3) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`,surgery_length_of_duration))
+asa4 <- LOD %>% filter (asa_score == 4) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`,surgery_length_of_duration))
+asa5 <- LOD %>% filter (asa_score == 5) %>% select(c(`age`,`weight`,`height`,`gender`,`comorbidity`,surgery_length_of_duration))
+```
+
+```{r}
+(nrow(asa1 %>% filter(surgery_length_of_duration < 0))/nrow(asa1))*100   
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(asa1))*100   
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(asa1))*100  
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(asa1))*100   
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(asa1))*100   
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(asa1))*100   
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(asa1))*100 
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(asa1))*100 
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(asa1))*100 
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(asa1))*100 
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(asa1))*100 
+(nrow(asa1 %>% filter(surgery_length_of_duration >= 600))/nrow(asa1))*100   
+```
+```{r}
+(nrow(asa2 %>% filter(surgery_length_of_duration < 0))/nrow(asa2))*100   
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(asa2))*100   
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(asa2))*100  
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(asa2))*100   
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(asa2))*100   
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(asa2))*100   
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(asa2))*100 
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(asa2))*100 
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(asa2))*100 
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(asa2))*100 
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(asa2))*100 
+(nrow(asa2 %>% filter(surgery_length_of_duration >= 600))/nrow(asa2))*100   
+  
+```
+```{r}
+(nrow(asa3 %>% filter(surgery_length_of_duration < 0))/nrow(asa3))*100   
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(asa3))*100   
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(asa3))*100  
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(asa3))*100   
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(asa3))*100   
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(asa3))*100   
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(asa3))*100 
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(asa3))*100 
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(asa3))*100 
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(asa3))*100 
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(asa3))*100 
+(nrow(asa3 %>% filter(surgery_length_of_duration >= 600))/nrow(asa3))*100   
+  
+```
+
+
+```{r}
+(nrow(asa4 %>% filter(surgery_length_of_duration < 0))/nrow(asa4))*100   
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(asa4))*100   
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(asa4))*100  
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(asa4))*100   
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(asa4))*100   
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(asa4))*100   
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(asa4))*100 
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(asa4))*100 
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(asa4))*100 
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(asa4))*100 
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(asa4))*100 
+(nrow(asa4 %>% filter(surgery_length_of_duration >= 600))/nrow(asa4))*100   
+```
+```{r}
+(nrow(asa5 %>% filter(surgery_length_of_duration < 0))/nrow(asa5))*100   
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(asa5))*100   
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(asa5))*100  
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(asa5))*100   
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(asa5))*100   
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(asa5))*100   
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(asa5))*100 
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(asa5))*100 
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(asa5))*100 
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(asa5))*100 
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(asa5))*100 
+(nrow(asa5 %>% filter(surgery_length_of_duration >= 600))/nrow(asa5))*100   
+
+```
+No son datos muy concluyentes
+```{r}
+(nrow(conjuntas %>% filter(surgery_length_of_duration < 0))/nrow(conjuntas))*100   
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(conjuntas))*100   
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(conjuntas))*100  
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(conjuntas))*100   
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(conjuntas))*100   
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(conjuntas))*100   
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(conjuntas))*100 
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(conjuntas))*100 
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(conjuntas))*100 
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(conjuntas))*100 
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(conjuntas))*100 
+(nrow(conjuntas %>% filter(surgery_length_of_duration >= 600))/nrow(conjuntas))*100   
+   
+```
+```{r}
+(nrow(individuales %>% filter(surgery_length_of_duration < 0))/nrow(individuales))*100   
+(nrow(individuales %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(individuales))*100   
+(nrow(individuales %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(individuales))*100  
+(nrow(individuales %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(individuales))*100   
+(nrow(individuales %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(individuales))*100   
+(nrow(individuales %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(individuales))*100   
+(nrow(individuales %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(individuales))*100 
+(nrow(individuales %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(individuales))*100 
+(nrow(individuales %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(individuales))*100 
+(nrow(individuales %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(individuales))*100 
+(nrow(individuales %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(individuales))*100 
+(nrow(individuales %>% filter(surgery_length_of_duration >= 600))/nrow(individuales))*100   
+```
+
+Cuando solo se aplica una anestesia la operacón suele durar 2 horas, sin embargo al aplicar solo 1 suele durar más una hora
+```{r}
+HOSP <- LOD %>%
+  filter(character_of_intervention == "HOSP")
+HOSP
+```
+
+```{r}
+AMB <- LOD %>%
+  filter(character_of_intervention == "AMB")
+AMB
+```
+```{r}
+(nrow(AMB %>% filter(surgery_length_of_duration < 0))/nrow(AMB))*100   
+(nrow(AMB %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(AMB))*100   
+(nrow(AMB %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(AMB))*100  
+(nrow(AMB %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(AMB))*100   
+(nrow(AMB %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(AMB))*100   
+(nrow(AMB %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(AMB))*100   
+(nrow(AMB %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(AMB))*100 
+(nrow(AMB %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(AMB))*100 
+(nrow(AMB %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(AMB))*100 
+(nrow(AMB %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(AMB))*100 
+(nrow(AMB %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(AMB))*100 
+(nrow(AMB %>% filter(surgery_length_of_duration >= 600))/nrow(AMB))*100   
+  
+```
+```{r}
+(nrow(HOSP %>% filter(surgery_length_of_duration < 0))/nrow(HOSP))*100   
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 0 & surgery_length_of_duration < 60))/nrow(HOSP))*100   
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 60 & surgery_length_of_duration < 120))/nrow(HOSP))*100  
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 120 & surgery_length_of_duration < 180))/nrow(HOSP))*100   
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 180 & surgery_length_of_duration < 240))/nrow(HOSP))*100   
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 240 & surgery_length_of_duration < 300))/nrow(HOSP))*100   
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 300 & surgery_length_of_duration < 360))/nrow(HOSP))*100 
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 360 & surgery_length_of_duration < 420))/nrow(HOSP))*100 
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 420 & surgery_length_of_duration < 480))/nrow(HOSP))*100 
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 480 & surgery_length_of_duration < 540))/nrow(HOSP))*100 
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 540 & surgery_length_of_duration < 600))/nrow(HOSP))*100 
+(nrow(HOSP %>% filter(surgery_length_of_duration >= 600))/nrow(HOSP))*100   
+
+  
+```
+Lo mismo pasa con el caracter de la intervención, AMB suelen durar menos que HOSP
+
+```{r}
+(nrow(AMB %>% filter(main_procedure == 13.41))/nrow(AMB))*100   
+```
+Vamos a ver cuales son los 10 procedimientos que más se repiten
+
+```{r}
+# Suponiendo que tienes un dataframe llamado datos y quieres ver los valores más repetidos en la columna "columna"
+# Puedes usar la función table() para contar la frecuencia de cada valor en la columna
+frecuencias <- table(LOD$main_procedure)
+
+# Luego, puedes ordenar las frecuencias de mayor a menor
+frecuencias_ordenadas <- sort(frecuencias, decreasing = TRUE)
+
+
+# Para ver los valores más repetidos, puedes tomar los primeros n elementos
+n <- 10 # Por ejemplo, si quieres ver los 5 valores más repetidos
+valores_mas_repetidos <- (frecuencias_ordenadas)[1:n]
+
+# Ahora, imprime los valores más repetidos
+print(valores_mas_repetidos)
+```
+```{r}
+# Suponiendo que tienes un dataframe llamado datos y quieres ver los valores más repetidos en la columna "columna"
+# Puedes usar la función table() para contar la frecuencia de cada valor en la columna
+frecuencias <- table(LOD$main_condition)
+
+# Luego, puedes ordenar las frecuencias de mayor a menor
+frecuencias_ordenadas <- sort(frecuencias, decreasing = TRUE)
+
+# Para ver los valores más repetidos, puedes tomar los primeros n elementos
+n <- 10 # Por ejemplo, si quieres ver los 5 valores más repetidos
+valores_mas_repetidos <- (frecuencias_ordenadas)[1:n]
+
+# Ahora, imprime los valores más repetidos
+print(valores_mas_repetidos)
+```
+```{r}
+asa1 <- LOD %>% filter (asa_score == 1)
+asa2 <- LOD %>% filter (asa_score == 2) 
+asa3 <- LOD %>% filter (asa_score == 3)
+asa4 <- LOD %>% filter (asa_score == 4) 
+asa5 <- LOD %>% filter (asa_score == 5)
+```
+```{r}
+(nrow(asa4 %>% filter(main_procedure == 13.41))/nrow(asa4))*100   
+```
+Vamos a filtrar las cirujías que han durado menos de 1000 minutos ya que los casos mayores se tratarán como excepciones
+
+```{r}
+positivos <- LOD %>% filter (surgery_length_of_duration >= 0 & surgery_length_of_duration < 1000)
+```
+
+vemos gráficamente como afecta el asa_score a estos datos
+
+```{r}
+plot(positivos$asa_score, positivos$surgery_length_of_duration, xlab = "Columna de Interés", ylab = "Tiempo en Quirófano")
+```
+Vamos a ver que valores afectan más al tiempo
+```{r}
+LOD$character_numeric <- ifelse(LOD$character_of_intervention == "AMB", 0, ifelse(LOD$character_of_intervention == "HOSP", 1, NA))
+LOD$character_numeric <- as.integer(LOD$character_numeric)
+```
+```{r}
+positivos <- LOD %>% filter (surgery_length_of_duration >= 0 & surgery_length_of_duration < 1000)
+```
+
+
+```{r}
+correlation <- cor(positivos$secondary_procedure, positivos$surgery_length_of_duration)
+correlation
+```
+
+
+```{r}
+correlation <- cor(positivos$asa_score, positivos$surgery_length_of_duration)
+correlation
+```
+
+```{r}
+correlation <- cor(positivos$age, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+correlation <- cor(positivos$weight, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+correlation <- cor(positivos$height, positivos$surgery_length_of_duration)
+correlation
+```
+
+```{r}
+correlation <- cor(positivos$anesthesia_local, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+correlation <- cor(positivos$anesthesia_sedation, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+correlation <- cor(positivos$anesthesia_plexus_block, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+correlation <- cor(positivos$anesthesia_intradural, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+correlation <- cor(positivos$anesthesia_epidural, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+correlation <- cor(positivos$anesthesia_general, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+correlation <- cor(positivos$IMC, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+correlation <- cor(positivos$character_numeric, positivos$surgery_length_of_duration)
+correlation
+```
+```{r}
+plot(positivos$character_numeric, positivos$surgery_length_of_duration, xlab = "Columna de Interés", ylab = "Tiempo en Quirófano")
+```
+
+relevantes:asa_score, local, sedation, epidural, general y character_of_intervention
+
+```{r}
+modelo <- lm(surgery_length_of_duration ~ asa_score, data = positivos)
+summary(modelo)
+```
+
+13.41 23.19 38.59 51.23 57.49 81.54  4.43 53.05 85.21 83.39 81.51  86.3    64 68.29 
+ 9959  1779  1549  1532  1277  1144  1095  1089  1034   885   690   660   654   644 
+60.29 81.08  54.4 77.51  23.1 14.74  28.3 21.88 80.51  3.09  60.5   6.4  24.4 39.27 
+  627   602   511   502   483   469   429   418   406   405   392   386   385   381 
+   53 68.41 49.11 82.01 53.41 53.61  86.7 68.12 49.46 68.49 68.59  80.6 55.51 85.41 
+  373   373   370   365   358   354   353   332   318   317   312   306   294   293 
+  8.7 82.29 49.39 56.31 86.21 86.74  67.2 81.02 
+  292   289   279   274   272   272   269   268 
+  
+```{r}
+procedures_repetidos <- c(13.41, 23.19, 38.59, 51.23, 57.49, 81.54, 4.43, 53.05, 85.21, 83.39)
+```
+
+```{r}
+positivos <- positivos %>% filter (main_procedure %in% procedures_repetidos)
+positivos
+```
+```{r}
+plot(positivos$main_procedure, positivos$surgery_length_of_duration, xlab = "Columna de Interés", ylab = "Tiempo en Quirófano")
+```
+```{r}
+# Carga la librería ggplot2 si aún no lo has hecho
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+```{r}
+# Supongamos que tienes un dataframe llamado "datos" con una columna "main_procedure" que contiene los nombres de los procedimientos y una columna "tiempo" que contiene los tiempos correspondientes.
+
+# Crea un gráfico de barras
+ggplot(positivos, aes(x = main_procedure, y = surgery_length_of_duration)) +
+  geom_bar(stat = "summary", fun = "mean", fill = "skyblue", color = "black") +
+  labs(title = "Tiempo promedio por procedimiento", x = "Procedimiento", y = "Tiempo promedio")
+
+```
+
+```{r}
+# Supongamos que tienes un dataframe llamado "datos" con una columna "main_procedure" que contiene los nombres de los procedimientos y una columna "tiempo" que contiene los tiempos correspondientes.
+
+# Crea un gráfico de barras
+ggplot(positivos, aes(x = character_numeric, y = surgery_length_of_duration)) +
+  geom_bar(stat = "summary", fun = "mean", fill = "skyblue", color = "black") +
+  labs(title = "Tiempo promedio por carácter", x = "carácter", y = "Tiempo promedio")
+
+```
+
+```{r}
+# Supongamos que tienes un dataframe llamado "datos" con una columna "main_procedure" que contiene los nombres de los procedimientos y una columna "tiempo" que contiene los tiempos correspondientes.
+
+# Crea un gráfico de barras
+ggplot(positivos, aes(x = asa_score, y = surgery_length_of_duration)) +
+  geom_bar(stat = "summary", fun = "mean", fill = "skyblue", color = "black") +
+  labs(title = "Tiempo promedio por asa_score", x = "asa_score", y = "Tiempo promedio")
+
+```
 
