@@ -39,6 +39,9 @@ LOD %>%
   summarise_all(.funs = function(x) sum(is.na(x)))
 
 ```
+```{r}
+LOD <- na.omit(LOD)
+```
 
 Descripcion y valores que alcanzan
 
@@ -322,4 +325,72 @@ negativo <- LOD %>% filter (surgery_length_of_duration < 0)
 (nrow(negativo %>% filter(surgery_length_of_duration < 0 & asa_score == 5))/nrow(negativo))*100   
 
 ```
+
 los mayores tiempos negativos provienen del asa 2
+
+```{r}
+anestesia <- LOD %>% filter  %>% select(c(asa_score, anesthesia_local, anesthesia_sedation, anesthesia_plexus_block, anesthesia_intradural, anesthesia_epidural, anesthesia_general, surgery_length_of_duration, cleaning_time, recovery_time))
+anestesia
+```
+
+```{r}
+conjuntas <- LOD %>%
+  filter(rowSums(select(., starts_with("anesthesia")) == 1) >= 2) %>%
+  select(asa_score, anesthesia_local, anesthesia_sedation, 
+         anesthesia_plexus_block, anesthesia_intradural, 
+         anesthesia_epidural, anesthesia_general, 
+         surgery_length_of_duration, cleaning_time, recovery_time)
+conjuntas
+```
+
+```{r}
+individuales <- LOD %>%
+  filter(rowSums(select(., starts_with("anesthesia")) == 1) == 1) %>%
+  select(asa_score, anesthesia_local, anesthesia_sedation, 
+         anesthesia_plexus_block, anesthesia_intradural, 
+         anesthesia_epidural, anesthesia_general, 
+         surgery_length_of_duration, cleaning_time, recovery_time)
+individuales
+```
+
+```{r}
+(nrow(conjuntas)/nrow(LOD))*100
+```
+```{r}
+(nrow(conjuntas %>% filter(asa_score == 1))/nrow(conjuntas))*100
+(nrow(conjuntas %>% filter(asa_score == 2))/nrow(conjuntas))*100
+(nrow(conjuntas %>% filter(asa_score == 3))/nrow(conjuntas))*100
+(nrow(conjuntas %>% filter(asa_score == 4))/nrow(conjuntas))*100
+(nrow(conjuntas %>% filter(asa_score == 5))/nrow(conjuntas))*100
+```
+El 50% provienen del asa2 asique no es concluyentes porque el 50% de los datos de la tabla 
+
+```{r}
+(nrow(individuales)/nrow(LOD))*100
+```
+
+```{r}
+(nrow(individuales %>% filter(asa_score == 1))/nrow(individuales))*100
+(nrow(individuales %>% filter(asa_score == 2))/nrow(individuales))*100
+(nrow(individuales %>% filter(asa_score == 3))/nrow(individuales))*100
+(nrow(individuales %>% filter(asa_score == 4))/nrow(individuales))*100
+(nrow(individuales %>% filter(asa_score == 5))/nrow(individuales))*100
+```
+Tampoco sacamos nada concluyente
+
+```{r}
+media_duration_LOD <- colMeans(LOD[, c("surgery_length_of_duration", "cleaning_time", "recovery_time")], na.rm = TRUE)
+media_duration_LOD
+```
+
+```{r}
+media_duration_conjuntas <- colMeans(conjuntas[, c("surgery_length_of_duration", "cleaning_time", "recovery_time")], na.rm = TRUE)
+media_duration_conjuntas
+```
+
+```{r}
+media_duration_individuales <- colMeans(individuales[, c("surgery_length_of_duration", "cleaning_time", "recovery_time")], na.rm = TRUE)
+media_duration_individuales
+```
+
+
